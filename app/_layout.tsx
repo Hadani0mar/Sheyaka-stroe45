@@ -17,11 +17,13 @@ import {
 } from '@expo-google-fonts/tajawal';
 import { I18nManager } from 'react-native';
 
-// Enable RTL for Arabic
-I18nManager.forceRTL(true);
-
 export default function RootLayout() {
   useFrameworkReady();
+
+  // Enable RTL for Arabic after component mounts
+  useEffect(() => {
+    I18nManager.forceRTL(true);
+  }, []);
 
   const [fontsLoaded] = useFonts({
     'Cairo-Regular': Cairo_400Regular,
