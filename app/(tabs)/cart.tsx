@@ -12,11 +12,13 @@ import {
 import { router } from 'expo-router';
 import { Minus, Plus, Trash2, ShoppingBag, CreditCard } from 'lucide-react-native';
 import { useCart } from '@/contexts/CartContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function CartScreen() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { theme } = useTheme();
 
-  const handleQuantityChange = (id: number, currentQuantity: number, change: number) => {
+  const handleQuantityChange = (id: string, currentQuantity: number, change: number) => {
     const newQuantity = currentQuantity + change;
     if (newQuantity <= 0) {
       removeFromCart(id);
@@ -25,7 +27,7 @@ export default function CartScreen() {
     }
   };
 
-  const handleRemoveItem = (id: number, productName: string) => {
+  const handleRemoveItem = (id: string, productName: string) => {
     Alert.alert(
       'إزالة المنتج',
       `هل تريد إزالة "${productName}" من السلة؟`,
@@ -48,57 +50,242 @@ export default function CartScreen() {
   };
 
   const CartItem = ({ item }: { item: any }) => (
-    <View style={styles.cartItem}>
-      <Image source={{ uri: item.image }} style={styles.productImage} />
+    <View style={[styles.cartItem, { backgroundColor: theme.colors.card, ...theme.shadows.medium }]}>
+      {item.image ? (
+        <Image source={{ uri: item.image }} style={styles.productImage} />
+      ) : (
+        <View style={[styles.productImage, { backgroundColor: theme.colors.border, justifyContent: 'center', alignItems: 'center' }]}>
+          <Text style={[styles.noImageText, { color: theme.colors.textMuted }]}>لا توجد صورة</Text>
+        </View>
+      )}
       <View style={styles.productDetails}>
-        <Text style={styles.productName} numberOfLines={2}>{item.name}</Text>
+        <Text style={[styles.productName, { color: theme.colors.text }]} numberOfLines={2}>{item.name}</Text>
         {item.selectedColor && (
-          <Text style={styles.productOption}>اللون: {item.selectedColor}</Text>
+          <Text style={[styles.productOption, { color: theme.colors.textMuted }]}>اللون: {item.selectedColor}</Text>
         )}
         {item.selectedSize && (
-          <Text style={styles.productOption}>المقاس: {item.selectedSize}</Text>
+          <Text style={[styles.productOption, { color: theme.colors.textMuted }]}>المقاس: {item.selectedSize}</Text>
         )}
-        <Text style={styles.productPrice}>﷼{item.price}</Text>
+        <Text style={[styles.productPrice, { color: theme.colors.primary }]}>{item.price} د.ل</Text>
       </View>
-      <View style={styles.quantityContainer}>
+      <View style={[styles.quantityContainer, { backgroundColor: theme.colors.background }]}>
         <TouchableOpacity
-          style={styles.quantityButton}
+          style={[styles.quantityButton, { backgroundColor: theme.colors.surface }]}
           onPress={() => handleQuantityChange(item.id, item.quantity, -1)}
         >
-          <Minus size={16} color="#6B7280" />
+          <Minus size={16} color={theme.colors.textSecondary} />
         </TouchableOpacity>
-        <Text style={styles.quantityText}>{item.quantity}</Text>
+        <Text style={[styles.quantityText, { color: theme.colors.text }]}>{item.quantity}</Text>
         <TouchableOpacity
-          style={styles.quantityButton}
+          style={[styles.quantityButton, { backgroundColor: theme.colors.surface }]}
           onPress={() => handleQuantityChange(item.id, item.quantity, 1)}
         >
-          <Plus size={16} color="#6B7280" />
+          <Plus size={16} color={theme.colors.textSecondary} />
         </TouchableOpacity>
       </View>
       <TouchableOpacity
         style={styles.removeButton}
         onPress={() => handleRemoveItem(item.id, item.name)}
       >
-        <Trash2 size={20} color="#E53E3E" />
+        <Trash2 size={20} color={theme.colors.error} />
       </TouchableOpacity>
     </View>
   );
 
   const EmptyCart = () => (
     <View style={styles.emptyCart}>
-      <ShoppingBag size={80} color="#D1D5DB" />
-      <Text style={styles.emptyCartTitle}>السلة فارغة</Text>
-      <Text style={styles.emptyCartMessage}>
+      <ShoppingBag size={80} color={theme.colors.textMuted} />
+      <Text style={[styles.emptyCartTitle, { color: theme.colors.text }]}>السلة فارغة</Text>
+      <Text style={[styles.emptyCartMessage, { color: theme.colors.textSecondary }]}>
         لم تقم بإضافة أي منتجات للسلة بعد
       </Text>
       <TouchableOpacity
-        style={styles.shopNowButton}
+        style={[styles.shopNowButton, { backgroundColor: theme.colors.primary }]}
         onPress={() => router.push('/(tabs)/')}
       >
-        <Text style={styles.shopNowText}>ابدأ التسوق</Text>
+        <Text style={[styles.shopNowText, { color: theme.colors.white }]}>ابدأ التسوق</Text>
       </TouchableOpacity>
     </View>
   );
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 20,
+      paddingTop: 40,
+      backgroundColor: theme.colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    headerTitle: {
+      fontSize: 20,
+      fontFamily: 'Cairo-Bold',
+      color: theme.colors.text,
+    },
+    clearCartText: {
+      fontSize: 14,
+      fontFamily: 'Cairo-Regular',
+      color: theme.colors.error,
+    },
+    cartList: {
+      padding: 20,
+    },
+    cartItem: {
+      flexDirection: 'row',
+      borderRadius: theme.borderRadius.lg,
+      padding: 16,
+      alignItems: 'center',
+    },
+    productImage: {
+      width: 80,
+      height: 80,
+      borderRadius: theme.borderRadius.md,
+      marginRight: 16,
+    },
+    noImageText: {
+      fontSize: 10,
+      fontFamily: 'Cairo-Regular',
+    },
+    productDetails: {
+      flex: 1,
+      gap: 4,
+    },
+    productName: {
+      fontSize: 16,
+      fontFamily: 'Cairo-SemiBold',
+      lineHeight: 22,
+    },
+    productOption: {
+      fontSize: 12,
+      fontFamily: 'Cairo-Regular',
+    },
+    productPrice: {
+      fontSize: 16,
+      fontFamily: 'Cairo-Bold',
+    },
+    quantityContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: theme.borderRadius.sm,
+      padding: 4,
+      marginLeft: 12,
+    },
+    quantityButton: {
+      width: 32,
+      height: 32,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 6,
+    },
+    quantityText: {
+      fontSize: 16,
+      fontFamily: 'Cairo-SemiBold',
+      marginHorizontal: 12,
+      minWidth: 20,
+      textAlign: 'center',
+    },
+    removeButton: {
+      padding: 8,
+      marginLeft: 8,
+    },
+    separator: {
+      height: 16,
+    },
+    emptyCart: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 40,
+    },
+    emptyCartTitle: {
+      fontSize: 24,
+      fontFamily: 'Cairo-Bold',
+      marginTop: 24,
+      marginBottom: 8,
+    },
+    emptyCartMessage: {
+      fontSize: 16,
+      fontFamily: 'Cairo-Regular',
+      textAlign: 'center',
+      marginBottom: 32,
+    },
+    shopNowButton: {
+      paddingHorizontal: 32,
+      paddingVertical: 16,
+      borderRadius: theme.borderRadius.md,
+    },
+    shopNowText: {
+      fontSize: 16,
+      fontFamily: 'Cairo-SemiBold',
+    },
+    orderSummary: {
+      backgroundColor: theme.colors.surface,
+      margin: 20,
+      padding: 20,
+      borderRadius: theme.borderRadius.lg,
+      ...theme.shadows.medium,
+    },
+    summaryRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    summaryLabel: {
+      fontSize: 14,
+      fontFamily: 'Cairo-Regular',
+      color: theme.colors.textSecondary,
+    },
+    summaryValue: {
+      fontSize: 14,
+      fontFamily: 'Cairo-SemiBold',
+      color: theme.colors.text,
+    },
+    totalRow: {
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.border,
+      paddingTop: 12,
+      marginTop: 8,
+      marginBottom: 0,
+    },
+    totalLabel: {
+      fontSize: 16,
+      fontFamily: 'Cairo-Bold',
+      color: theme.colors.text,
+    },
+    totalValue: {
+      fontSize: 18,
+      fontFamily: 'Cairo-Bold',
+      color: theme.colors.primary,
+    },
+    checkoutContainer: {
+      padding: 20,
+      backgroundColor: theme.colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.border,
+    },
+    checkoutButton: {
+      flexDirection: 'row',
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.md,
+      paddingVertical: 16,
+      paddingHorizontal: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 12,
+    },
+    checkoutText: {
+      color: theme.colors.white,
+      fontSize: 18,
+      fontFamily: 'Cairo-Bold',
+    },
+  });
 
   if (cart.items.length === 0) {
     return (
@@ -132,7 +319,7 @@ export default function CartScreen() {
       <View style={styles.orderSummary}>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>المجموع الفرعي</Text>
-          <Text style={styles.summaryValue}>﷼{cart.total}</Text>
+          <Text style={styles.summaryValue}>{cart.total} د.ل</Text>
         </View>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>الشحن</Text>
@@ -140,11 +327,11 @@ export default function CartScreen() {
         </View>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>الضريبة</Text>
-          <Text style={styles.summaryValue}>﷼{Math.round(cart.total * 0.15)}</Text>
+          <Text style={styles.summaryValue}>{Math.round(cart.total * 0.15)} د.ل</Text>
         </View>
         <View style={[styles.summaryRow, styles.totalRow]}>
           <Text style={styles.totalLabel}>المجموع الكلي</Text>
-          <Text style={styles.totalValue}>﷼{Math.round(cart.total * 1.15)}</Text>
+          <Text style={styles.totalValue}>{Math.round(cart.total * 1.15)} د.ل</Text>
         </View>
       </View>
 
@@ -153,205 +340,10 @@ export default function CartScreen() {
           style={styles.checkoutButton}
           onPress={() => router.push('/checkout')}
         >
-          <CreditCard size={20} color="#FFFFFF" />
+          <CreditCard size={20} color={theme.colors.white} />
           <Text style={styles.checkoutText}>إتمام الطلب</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    paddingTop: 40,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontFamily: 'Cairo-Bold',
-    color: '#1F2937',
-  },
-  clearCartText: {
-    fontSize: 14,
-    fontFamily: 'Cairo-Regular',
-    color: '#E53E3E',
-  },
-  cartList: {
-    padding: 20,
-  },
-  cartItem: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  productImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-    marginRight: 16,
-  },
-  productDetails: {
-    flex: 1,
-    gap: 4,
-  },
-  productName: {
-    fontSize: 16,
-    fontFamily: 'Cairo-SemiBold',
-    color: '#1F2937',
-    lineHeight: 22,
-  },
-  productOption: {
-    fontSize: 12,
-    fontFamily: 'Cairo-Regular',
-    color: '#6B7280',
-  },
-  productPrice: {
-    fontSize: 16,
-    fontFamily: 'Cairo-Bold',
-    color: '#E53E3E',
-  },
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    padding: 4,
-    marginLeft: 12,
-  },
-  quantityButton: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 6,
-  },
-  quantityText: {
-    fontSize: 16,
-    fontFamily: 'Cairo-SemiBold',
-    color: '#1F2937',
-    marginHorizontal: 12,
-    minWidth: 20,
-    textAlign: 'center',
-  },
-  removeButton: {
-    padding: 8,
-    marginLeft: 8,
-  },
-  separator: {
-    height: 16,
-  },
-  emptyCart: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
-  emptyCartTitle: {
-    fontSize: 24,
-    fontFamily: 'Cairo-Bold',
-    color: '#1F2937',
-    marginTop: 24,
-    marginBottom: 8,
-  },
-  emptyCartMessage: {
-    fontSize: 16,
-    fontFamily: 'Cairo-Regular',
-    color: '#6B7280',
-    textAlign: 'center',
-    marginBottom: 32,
-  },
-  shopNowButton: {
-    backgroundColor: '#E53E3E',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 12,
-  },
-  shopNowText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: 'Cairo-SemiBold',
-  },
-  orderSummary: {
-    backgroundColor: '#FFFFFF',
-    margin: 20,
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  summaryLabel: {
-    fontSize: 14,
-    fontFamily: 'Cairo-Regular',
-    color: '#6B7280',
-  },
-  summaryValue: {
-    fontSize: 14,
-    fontFamily: 'Cairo-SemiBold',
-    color: '#1F2937',
-  },
-  totalRow: {
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    paddingTop: 12,
-    marginTop: 8,
-    marginBottom: 0,
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontFamily: 'Cairo-Bold',
-    color: '#1F2937',
-  },
-  totalValue: {
-    fontSize: 18,
-    fontFamily: 'Cairo-Bold',
-    color: '#E53E3E',
-  },
-  checkoutContainer: {
-    padding: 20,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-  checkoutButton: {
-    flexDirection: 'row',
-    backgroundColor: '#E53E3E',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  checkoutText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontFamily: 'Cairo-Bold',
-  },
-});

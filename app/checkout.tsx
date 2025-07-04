@@ -12,9 +12,11 @@ import {
 import { router } from 'expo-router';
 import { ArrowLeft, MapPin, CreditCard, Check, Truck } from 'lucide-react-native';
 import { useCart } from '@/contexts/CartContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function CheckoutScreen() {
   const { cart, clearCart } = useCart();
+  const { theme } = useTheme();
   const [selectedAddress, setSelectedAddress] = useState(0);
   const [selectedPayment, setSelectedPayment] = useState(0);
   const [promoCode, setPromoCode] = useState('');
@@ -23,14 +25,14 @@ export default function CheckoutScreen() {
     {
       id: 0,
       name: 'المنزل',
-      address: 'الرياض، حي النخيل، شارع الملك فهد، مبنى 123',
-      phone: '+966 50 123 4567',
+      address: 'طرابلس، حي الأندلس، شارع الجمهورية، مبنى 123',
+      phone: '+218 91 123 4567',
     },
     {
       id: 1,
       name: 'العمل',
-      address: 'الرياض، حي العليا، شارع العليا العام، مكتب 456',
-      phone: '+966 50 123 4567',
+      address: 'طرابلس، حي الدهماني، شارع عمر المختار، مكتب 456',
+      phone: '+218 91 123 4567',
     },
   ];
 
@@ -82,23 +84,29 @@ export default function CheckoutScreen() {
 
   const AddressCard = ({ address, isSelected }: { address: any; isSelected: boolean }) => (
     <TouchableOpacity
-      style={[styles.addressCard, isSelected && styles.selectedCard]}
+      style={[
+        styles.addressCard,
+        { 
+          borderColor: isSelected ? theme.colors.primary : theme.colors.border,
+          backgroundColor: isSelected ? `${theme.colors.primary}10` : theme.colors.surface 
+        }
+      ]}
       onPress={() => setSelectedAddress(address.id)}
     >
       <View style={styles.addressHeader}>
-        <View style={styles.addressIcon}>
-          <MapPin size={20} color="#E53E3E" />
+        <View style={[styles.addressIcon, { backgroundColor: `${theme.colors.primary}20` }]}>
+          <MapPin size={20} color={theme.colors.primary} />
         </View>
         <View style={styles.addressInfo}>
-          <Text style={styles.addressName}>{address.name}</Text>
-          <Text style={styles.addressText} numberOfLines={2}>
+          <Text style={[styles.addressName, { color: theme.colors.text }]}>{address.name}</Text>
+          <Text style={[styles.addressText, { color: theme.colors.textSecondary }]} numberOfLines={2}>
             {address.address}
           </Text>
-          <Text style={styles.addressPhone}>{address.phone}</Text>
+          <Text style={[styles.addressPhone, { color: theme.colors.textMuted }]}>{address.phone}</Text>
         </View>
         {isSelected && (
-          <View style={styles.selectedIcon}>
-            <Check size={16} color="#FFFFFF" />
+          <View style={[styles.selectedIcon, { backgroundColor: theme.colors.primary }]}>
+            <Check size={16} color={theme.colors.white} />
           </View>
         )}
       </View>
@@ -107,31 +115,257 @@ export default function CheckoutScreen() {
 
   const PaymentCard = ({ method, isSelected }: { method: any; isSelected: boolean }) => (
     <TouchableOpacity
-      style={[styles.paymentCard, isSelected && styles.selectedCard]}
+      style={[
+        styles.paymentCard,
+        { 
+          borderColor: isSelected ? theme.colors.primary : theme.colors.border,
+          backgroundColor: isSelected ? `${theme.colors.primary}10` : theme.colors.surface 
+        }
+      ]}
       onPress={() => setSelectedPayment(method.id)}
     >
       <View style={styles.paymentHeader}>
-        <View style={styles.paymentIcon}>
-          <method.icon size={20} color="#E53E3E" />
+        <View style={[styles.paymentIcon, { backgroundColor: `${theme.colors.primary}20` }]}>
+          <method.icon size={20} color={theme.colors.primary} />
         </View>
         <View style={styles.paymentInfo}>
-          <Text style={styles.paymentName}>{method.name}</Text>
-          <Text style={styles.paymentDetails}>{method.details}</Text>
+          <Text style={[styles.paymentName, { color: theme.colors.text }]}>{method.name}</Text>
+          <Text style={[styles.paymentDetails, { color: theme.colors.textSecondary }]}>{method.details}</Text>
         </View>
         {isSelected && (
-          <View style={styles.selectedIcon}>
-            <Check size={16} color="#FFFFFF" />
+          <View style={[styles.selectedIcon, { backgroundColor: theme.colors.primary }]}>
+            <Check size={16} color={theme.colors.white} />
           </View>
         )}
       </View>
     </TouchableOpacity>
   );
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: 20,
+      paddingTop: 40,
+      backgroundColor: theme.colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontFamily: 'Cairo-Bold',
+      color: theme.colors.text,
+    },
+    content: {
+      flex: 1,
+    },
+    section: {
+      backgroundColor: theme.colors.surface,
+      margin: 16,
+      borderRadius: theme.borderRadius.lg,
+      padding: 16,
+      ...theme.shadows.medium,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontFamily: 'Cairo-SemiBold',
+      color: theme.colors.text,
+      marginBottom: 16,
+    },
+    addressCard: {
+      borderWidth: 1,
+      borderRadius: theme.borderRadius.md,
+      padding: 16,
+      marginBottom: 12,
+    },
+    addressHeader: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+    },
+    addressIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    addressInfo: {
+      flex: 1,
+    },
+    addressName: {
+      fontSize: 16,
+      fontFamily: 'Cairo-SemiBold',
+      marginBottom: 4,
+    },
+    addressText: {
+      fontSize: 14,
+      fontFamily: 'Cairo-Regular',
+      marginBottom: 4,
+      lineHeight: 20,
+    },
+    addressPhone: {
+      fontSize: 14,
+      fontFamily: 'Cairo-Regular',
+    },
+    selectedIcon: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    paymentCard: {
+      borderWidth: 1,
+      borderRadius: theme.borderRadius.md,
+      padding: 16,
+      marginBottom: 12,
+    },
+    paymentHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    paymentIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    paymentInfo: {
+      flex: 1,
+    },
+    paymentName: {
+      fontSize: 16,
+      fontFamily: 'Cairo-SemiBold',
+      marginBottom: 4,
+    },
+    paymentDetails: {
+      fontSize: 14,
+      fontFamily: 'Cairo-Regular',
+    },
+    addButton: {
+      backgroundColor: theme.colors.background,
+      borderRadius: theme.borderRadius.md,
+      padding: 16,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderStyle: 'dashed',
+    },
+    addButtonText: {
+      fontSize: 14,
+      fontFamily: 'Cairo-SemiBold',
+      color: theme.colors.textSecondary,
+    },
+    promoContainer: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    promoInput: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+      borderRadius: theme.borderRadius.md,
+      padding: 16,
+      fontSize: 16,
+      fontFamily: 'Cairo-Regular',
+      color: theme.colors.text,
+      textAlign: 'right',
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    promoButton: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.md,
+      paddingHorizontal: 24,
+      paddingVertical: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    promoButtonText: {
+      color: theme.colors.white,
+      fontSize: 14,
+      fontFamily: 'Cairo-SemiBold',
+    },
+    summaryCard: {
+      backgroundColor: theme.colors.background,
+      borderRadius: theme.borderRadius.md,
+      padding: 16,
+    },
+    summaryRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    summaryLabel: {
+      fontSize: 14,
+      fontFamily: 'Cairo-Regular',
+      color: theme.colors.textSecondary,
+    },
+    summaryValue: {
+      fontSize: 14,
+      fontFamily: 'Cairo-SemiBold',
+      color: theme.colors.text,
+    },
+    totalRow: {
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.border,
+      paddingTop: 12,
+      marginTop: 8,
+      marginBottom: 0,
+    },
+    totalLabel: {
+      fontSize: 16,
+      fontFamily: 'Cairo-Bold',
+      color: theme.colors.text,
+    },
+    totalValue: {
+      fontSize: 18,
+      fontFamily: 'Cairo-Bold',
+      color: theme.colors.primary,
+    },
+    bottomContainer: {
+      backgroundColor: theme.colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.border,
+      padding: 20,
+    },
+    totalContainer: {
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    totalText: {
+      fontSize: 18,
+      fontFamily: 'Cairo-Bold',
+      color: theme.colors.text,
+    },
+    orderButton: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.md,
+      paddingVertical: 16,
+      paddingHorizontal: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    orderButtonText: {
+      color: theme.colors.white,
+      fontSize: 18,
+      fontFamily: 'Cairo-Bold',
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <ArrowLeft size={24} color="#1F2937" />
+          <ArrowLeft size={24} color={theme.colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>إتمام الطلب</Text>
         <View style={{ width: 24 }} />
@@ -172,7 +406,7 @@ export default function CheckoutScreen() {
             <TextInput
               style={styles.promoInput}
               placeholder="أدخل كود الخصم"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={theme.colors.textMuted}
               value={promoCode}
               onChangeText={setPromoCode}
             />
@@ -188,11 +422,11 @@ export default function CheckoutScreen() {
           <View style={styles.summaryCard}>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>المجموع الفرعي</Text>
-              <Text style={styles.summaryValue}>﷼{subtotal}</Text>
+              <Text style={styles.summaryValue}>{subtotal} د.ل</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>الضريبة (15%)</Text>
-              <Text style={styles.summaryValue}>﷼{tax}</Text>
+              <Text style={styles.summaryValue}>{tax} د.ل</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>الشحن</Text>
@@ -200,7 +434,7 @@ export default function CheckoutScreen() {
             </View>
             <View style={[styles.summaryRow, styles.totalRow]}>
               <Text style={styles.totalLabel}>المجموع الكلي</Text>
-              <Text style={styles.totalValue}>﷼{total}</Text>
+              <Text style={styles.totalValue}>{total} د.ل</Text>
             </View>
           </View>
         </View>
@@ -210,7 +444,7 @@ export default function CheckoutScreen() {
 
       <View style={styles.bottomContainer}>
         <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>المجموع: ﷼{total}</Text>
+          <Text style={styles.totalText}>المجموع: {total} د.ل</Text>
         </View>
         <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
           <Text style={styles.orderButtonText}>تأكيد الطلب</Text>
@@ -219,239 +453,3 @@ export default function CheckoutScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    paddingTop: 40,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontFamily: 'Cairo-Bold',
-    color: '#1F2937',
-  },
-  content: {
-    flex: 1,
-  },
-  section: {
-    backgroundColor: '#FFFFFF',
-    margin: 16,
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontFamily: 'Cairo-SemiBold',
-    color: '#1F2937',
-    marginBottom: 16,
-  },
-  addressCard: {
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  selectedCard: {
-    borderColor: '#E53E3E',
-    backgroundColor: '#FEF2F2',
-  },
-  addressHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  addressIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FEF2F2',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  addressInfo: {
-    flex: 1,
-  },
-  addressName: {
-    fontSize: 16,
-    fontFamily: 'Cairo-SemiBold',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  addressText: {
-    fontSize: 14,
-    fontFamily: 'Cairo-Regular',
-    color: '#6B7280',
-    marginBottom: 4,
-    lineHeight: 20,
-  },
-  addressPhone: {
-    fontSize: 14,
-    fontFamily: 'Cairo-Regular',
-    color: '#9CA3AF',
-  },
-  selectedIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#E53E3E',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  paymentCard: {
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  paymentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  paymentIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FEF2F2',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  paymentInfo: {
-    flex: 1,
-  },
-  paymentName: {
-    fontSize: 16,
-    fontFamily: 'Cairo-SemiBold',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  paymentDetails: {
-    fontSize: 14,
-    fontFamily: 'Cairo-Regular',
-    color: '#6B7280',
-  },
-  addButton: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderStyle: 'dashed',
-  },
-  addButtonText: {
-    fontSize: 14,
-    fontFamily: 'Cairo-SemiBold',
-    color: '#6B7280',
-  },
-  promoContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  promoInput: {
-    flex: 1,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    fontFamily: 'Cairo-Regular',
-    color: '#1F2937',
-    textAlign: 'right',
-  },
-  promoButton: {
-    backgroundColor: '#E53E3E',
-    borderRadius: 12,
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  promoButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontFamily: 'Cairo-SemiBold',
-  },
-  summaryCard: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    padding: 16,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  summaryLabel: {
-    fontSize: 14,
-    fontFamily: 'Cairo-Regular',
-    color: '#6B7280',
-  },
-  summaryValue: {
-    fontSize: 14,
-    fontFamily: 'Cairo-SemiBold',
-    color: '#1F2937',
-  },
-  totalRow: {
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    paddingTop: 12,
-    marginTop: 8,
-    marginBottom: 0,
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontFamily: 'Cairo-Bold',
-    color: '#1F2937',
-  },
-  totalValue: {
-    fontSize: 18,
-    fontFamily: 'Cairo-Bold',
-    color: '#E53E3E',
-  },
-  bottomContainer: {
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    padding: 20,
-  },
-  totalContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  totalText: {
-    fontSize: 18,
-    fontFamily: 'Cairo-Bold',
-    color: '#1F2937',
-  },
-  orderButton: {
-    backgroundColor: '#E53E3E',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  orderButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontFamily: 'Cairo-Bold',
-  },
-});
